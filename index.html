@@ -99,6 +99,20 @@
     #score span { font-weight: bold; }
     #score .sx { color: #e94560; }
     #score .so { color: #a8dadc; }
+
+    #other-games {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    #other-games a {
+      color: #a8dadc;
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    #other-games a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -111,6 +125,8 @@
     <div>Draws: <span id="draws">0</span></div>
     <div>O wins: <span class="so" id="owins">0</span></div>
   </div>
+
+  <div id="other-games">Also play: <a href="shooter.html">Retro Shooter</a></div>
 
   <script>
     const WINS = [
