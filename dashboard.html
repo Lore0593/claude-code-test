@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameHub — Dashboard</title>
+  <style>
+    :root {
+      --bg:          #f0f4ff;
+      --card:        #ffffff;
+      --red:         #ff1744;
+      --red-soft:    rgba(255,23,68,0.10);
+      --blue:        #0288d1;
+      --blue-light:  #00b0ff;
+      --blue-soft:   rgba(2,136,209,0.10);
+      --border:      #e0e7ff;
+      --text:        #1a1a2e;
+      --muted:       #888;
+      --light:       #bbb;
+      --green:       #00c853;
+      --green-soft:  rgba(0,200,83,0.10);
+      --orange:      #ff9800;
+      --orange-soft: rgba(255,152,0,0.10);
+      --purple:      #7c4dff;
+      --sidebar-w:   230px;
+      --r:           14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+    }
+
+    .sb-logo {
+      padding: 1.6rem 1.4rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sb-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .sb-logo-icon {
+      width: 34px; height: 34px;
+      background: var(--red);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      color: #fff;
+    }
+
+    .sb-logo h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text);
+    }
+
+    .sb-logo p {
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 5px;
+      padding-left: 2px;
+    }
+
+    .sb-nav {
+      padding: 1rem 0.8rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow-y: auto;
+    }
+
+    .sb-section {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--light);
+      text-transform: uppercase;
+      padding: 0.8rem 0.6rem 0.3rem;
+    }
+
+    .sb-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 10px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+
+    .sb-item:hover { background: var(--bg); color: var(--text); }
+
+    .sb-item.active {
+      background: var(--red-soft);
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .sb-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .sb-foot {
+      padding: 1rem 1.4rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--light);
+      line-height: 1.5;
+    }
+
+    /* ── MAIN ────────────────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 2rem 2.2rem;
+      min-width: 0;
+    }
+
+    /* ── TOPBAR ──────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .topbar h1 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .topbar p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--green-soft);
+      color: var(--green);
+      padding: 0.45rem 1.1rem;
+      border-radius: 50px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      border: 1px solid rgba(0,200,83,0.2);
+    }
+
+    .live-dot {
+      width: 7px; height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* ── KPI ─────────────────────────────────────────────── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.2rem 1.4rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+
+    .kpi:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.09);
+    }
+
+    .kpi-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.9rem;
+    }
+
+    .kpi-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .kpi-icon {
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+
+    .kpi-val {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -1px;
+      margin-bottom: 0.4rem;
+    }
+
+    .kpi-foot {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .kpi-foot strong { color: var(--text); }
+
+    .trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .up   { color: var(--green); }
+    .down { color: var(--red); }
+
+    /* ── CARDS ───────────────────────────────────────────── */
+    .row-2-1 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.3rem;
+      margin-bottom: 1.3rem;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.3rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.4rem 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+
+    .card-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .chip {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.2rem 0.65rem;
+      border-radius: 50px;
+    }
+
+    canvas { display: block; }
+
+    /* ── DONUT LEGEND ────────────────────────────────────── */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin-top: 0.9rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.73rem;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 9px; height: 9px;
+      border-radius: 3px;
+    }
+
+    .legend-item strong { color: var(--text); }
+
+    /* ── RECENT GAMES ────────────────────────────────────── */
+    .game-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .g-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 0.75rem;
+      border-radius: 10px;
+      background: var(--bg);
+      transition: background 0.15s;
+    }
+
+    .g-item:hover { background: #e4eaff; }
+
+    .g-av {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .g-info { flex: 1; }
+
+    .g-name {
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .g-time {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .g-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.65rem;
+      border-radius: 50px;
+    }
+
+    /* ── SHOOTER STATS ───────────────────────────────────── */
+    .stat-list { display: flex; flex-direction: column; }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-row:last-child { border-bottom: none; }
+    .stat-k { font-size: 0.78rem; color: var(--muted); }
+    .stat-v { font-size: 0.88rem; font-weight: 700; color: var(--text); }
+
+    .prog-section { margin-top: 1rem; }
+
+    .prog-label {
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--light);
+      text-transform: uppercase;
+      margin-bottom: 0.55rem;
+    }
+
+    .prog-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .prog-lv {
+      font-size: 0.7rem;
+      color: var(--muted);
+      width: 32px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .prog-wrap {
+      flex: 1;
+      height: 7px;
+      background: var(--bg);
+      border-radius: 50px;
+      overflow: hidden;
+    }
+
+    .prog-fill {
+      height: 100%;
+      border-radius: 50px;
+      width: 0%;
+      transition: width 1.1s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .prog-n {
+      font-size: 0.68rem;
+      color: var(--muted);
+      width: 20px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-row">
+      <div class="sb-logo-icon">🎮</div>
+      <h2>GameHub</h2>
+    </div>
+    <p>Statistics Dashboard</p>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-section">Overview</div>
+    <a class="sb-item active" href="#">
+      <span class="sb-icon">📊</span> Dashboard
+    </a>
+
+    <div class="sb-section">Games</div>
+    <a class="sb-item" href="index.html">
+      <span class="sb-icon">✕○</span> Tic Tac Toe
+    </a>
+    <a class="sb-item" href="shooter.html">
+      <span class="sb-icon">🚀</span> Retro Shooter
+    </a>
+
+    <div class="sb-section">Account</div>
+    <a class="sb-item" href="#">
+      <span class="sb-icon">👤</span> Profile
+    </a>
+    <a class="sb-item" href="#">
+      <span class="sb-icon">⚙</span> Settings
+    </a>
+  </nav>
+
+  <div class="sb-foot">
+    Last session<br>
+    <strong style="color:var(--text)">Today, 14:32</strong>
+  </div>
+</aside>
+
+<!-- ── MAIN ───────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <h1>Overview</h1>
+      <p id="dateStr">Thursday, 19 March 2026</p>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Live Stats
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-top">
+        <span class="kpi-label">Total Games</span>
+        <div class="kpi-icon" style="background:var(--red-soft)">🎮</div>
+      </div>
+      <div class="kpi-val" style="color:var(--red)" data-target="247">0</div>
+      <div class="kpi-foot"><span class="trend up">↑ 12%</span> vs last week</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-top">
+        <span class="kpi-label">Win Rate</span>
+        <div class="kpi-icon" style="background:var(--green-soft)">🏆</div>
+      </div>
+      <div class="kpi-val" style="color:var(--green)" data-target="68" data-suffix="%">0</div>
+      <div class="kpi-foot"><span class="trend up">↑ 5%</span> vs last week</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-top">
+        <span class="kpi-label">Best Streak</span>
+        <div class="kpi-icon" style="background:var(--orange-soft)">🔥</div>
+      </div>
+      <div class="kpi-val" style="color:var(--orange)" data-target="12">0</div>
+      <div class="kpi-foot">Current: <strong>4 wins</strong></div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-top">
+        <span class="kpi-label">Hours Played</span>
+        <div class="kpi-icon" style="background:var(--blue-soft)">⏱</div>
+      </div>
+      <div class="kpi-val" style="color:var(--blue)" data-target="14" data-suffix="h">0</div>
+      <div class="kpi-foot">Avg <strong>45 min</strong> / day</div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="row-2-1">
+    <!-- Activity bar chart -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Activity</div>
+          <div class="card-sub">Games played — last 14 days</div>
+        </div>
+        <span class="chip" style="background:var(--red-soft);color:var(--red)">247 total</span>
+      </div>
+      <canvas id="barChart" height="155"></canvas>
+    </div>
+
+    <!-- Donut chart -->
+    <div class="card" style="display:flex;flex-direction:column;align-items:center">
+      <div class="card-head" style="width:100%">
+        <div>
+          <div class="card-title">Tic Tac Toe</div>
+          <div class="card-sub">163 games played</div>
+        </div>
+        <span class="chip" style="background:var(--blue-soft);color:var(--blue)">W/D/L</span>
+      </div>
+      <canvas id="donut" width="180" height="180" style="display:block;margin:0 auto"></canvas>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--red)"></div>
+          X Wins <strong>89</strong>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--blue)"></div>
+          O Wins <strong>43</strong>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#c5cef5"></div>
+          Draws <strong>31</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom row -->
+  <div class="row-2">
+    <!-- Recent games -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Recent Games</div>
+          <div class="card-sub">Latest activity</div>
+        </div>
+        <span class="chip" style="background:var(--bg);color:var(--muted)">Today</span>
+      </div>
+      <div class="game-list" id="recentList"></div>
+    </div>
+
+    <!-- Shooter stats -->
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Retro Shooter</div>
+          <div class="card-sub">84 games played</div>
+        </div>
+        <span class="chip" style="background:var(--red-soft);color:var(--red)">🚀 Shooter</span>
+      </div>
+
+      <div class="stat-list">
+        <div class="stat-row">
+          <span class="stat-k">High Score</span>
+          <span class="stat-v" style="color:var(--red)">48,200</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-k">Avg Score</span>
+          <span class="stat-v">21,400</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-k">Total Kills</span>
+          <span class="stat-v">1,847</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-k">Max Level Reached</span>
+          <span class="stat-v">7</span>
+        </div>
+      </div>
+
+      <div class="prog-section">
+        <div class="prog-label">Level Distribution</div>
+        <div id="levelBars"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DATA = {
+  activity: [3, 7, 2, 0, 5, 8, 12, 4, 6, 9, 3, 11, 7, 5],
+  ttt: { xWins: 89, oWins: 43, draws: 31 },
+  levelDist: [0, 12, 18, 22, 15, 10, 7],  // lvl 0 unused
+  recent: [
+    { game: 'Tic Tac Toe',   result: 'X Win',   time: '2 min ago',  kind: 'win'  },
+    { game: 'Retro Shooter', result: '31,200',  time: '15 min ago', kind: 'score'},
+    { game: 'Tic Tac Toe',   result: 'Draw',    time: '28 min ago', kind: 'draw' },
+    { game: 'Tic Tac Toe',   result: 'O Win',   time: '45 min ago', kind: 'loss' },
+    { game: 'Retro Shooter', result: '48,200',  time: '1h ago',     kind: 'score'},
+    { game: 'Tic Tac Toe',   result: 'X Win',   time: '2h ago',     kind: 'win'  },
+    { game: 'Retro Shooter', result: '12,050',  time: '3h ago',     kind: 'score'},
+  ]
+};
+
+// ── DATE ──────────────────────────────────────────────────────────────────────
+const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+const now = new Date();
+document.getElementById('dateStr').textContent =
+  `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+// ── COUNTER ANIMATION ─────────────────────────────────────────────────────────
+document.querySelectorAll('[data-target]').forEach(el => {
+  const target = +el.dataset.target;
+  const suffix = el.dataset.suffix || '';
+  let start = null;
+  const dur = 1400;
+  function step(ts) {
+    if (!start) start = ts;
+    const p = Math.min((ts - start) / dur, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(e * target) + suffix;
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+});
+
+// ── RECENT GAMES ──────────────────────────────────────────────────────────────
+const tagCfg = {
+  win:   { bg: 'var(--green-soft)', color: 'var(--green)' },
+  draw:  { bg: 'rgba(255,196,0,.15)', color: '#e09000' },
+  loss:  { bg: 'var(--red-soft)', color: 'var(--red)' },
+  score: { bg: 'var(--blue-soft)', color: 'var(--blue)' },
+};
+const gameEmoji = { 'Tic Tac Toe': '✕', 'Retro Shooter': '🚀' };
+const gameAv    = { 'Tic Tac Toe': 'var(--red-soft)', 'Retro Shooter': 'var(--blue-soft)' };
+
+const list = document.getElementById('recentList');
+DATA.recent.forEach(g => {
+  const cfg = tagCfg[g.kind];
+  const div = document.createElement('div');
+  div.className = 'g-item';
+  div.innerHTML = `
+    <div class="g-av" style="background:${gameAv[g.game]}">${gameEmoji[g.game]}</div>
+    <div class="g-info">
+      <div class="g-name">${g.game}</div>
+      <div class="g-time">${g.time}</div>
+    </div>
+    <div class="g-tag" style="background:${cfg.bg};color:${cfg.color}">${g.result}</div>`;
+  list.appendChild(div);
+});
+
+// ── LEVEL BARS ────────────────────────────────────────────────────────────────
+const maxLv = Math.max(...DATA.levelDist);
+const lvEl = document.getElementById('levelBars');
+DATA.levelDist.forEach((n, i) => {
+  if (i === 0) return;
+  const pct = Math.round(n / maxLv * 100);
+  const hue  = 180 + i * 15;
+  const row = document.createElement('div');
+  row.className = 'prog-row';
+  row.innerHTML = `
+    <div class="prog-lv">Lv ${i}</div>
+    <div class="prog-wrap">
+      <div class="prog-fill" data-pct="${pct}"
+           style="background:linear-gradient(90deg,#00b0ff,#0288d1)"></div>
+    </div>
+    <div class="prog-n">${n}</div>`;
+  lvEl.appendChild(row);
+});
+requestAnimationFrame(() => {
+  document.querySelectorAll('.prog-fill').forEach(el => {
+    el.style.width = el.dataset.pct + '%';
+  });
+});
+
+// ── BAR CHART ─────────────────────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('barChart');
+  const ctx = canvas.getContext('2d');
+  const vals = DATA.activity;
+  const maxV = Math.max(...vals);
+  const PAD  = { top: 12, right: 8, bottom: 32, left: 28 };
+  let animP  = 0;
+  let tooltip = null;
+
+  function resize() {
+    canvas.width = canvas.parentElement.clientWidth - 48;
+    draw(animP >= 1 ? 1 : 0);
+    if (animP < 1) animateIn();
+  }
+
+  function draw(prog) {
+    const W = canvas.width, H = canvas.height;
+    const cW = W - PAD.left - PAD.right;
+    const cH = H - PAD.top  - PAD.bottom;
+    const gap = cW / vals.length;
+    const bW  = gap * 0.55;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // grid
+    const steps = 4;
+    for (let i = 0; i <= steps; i++) {
+      const y = PAD.top + cH - (cH / steps) * i;
+      ctx.strokeStyle = '#e0e7ff';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(PAD.left, y);
+      ctx.lineTo(PAD.left + cW, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#bbb';
+      ctx.font = '9px Segoe UI, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(Math.round(maxV / steps * i), PAD.left - 4, y);
+    }
+
+    // bars
+    vals.forEach((v, i) => {
+      const bH = (v / maxV) * cH * prog;
+      const x  = PAD.left + i * gap + (gap - bW) / 2;
+      const y  = PAD.top + cH - bH;
+
+      const isHovered = tooltip === i;
+
+      // bar shadow on hover
+      if (isHovered) {
+        ctx.fillStyle = 'rgba(255,23,68,0.06)';
+        ctx.beginPath();
+        ctx.roundRect(x - 3, PAD.top, bW + 6, cH, 6);
+        ctx.fill();
+      }
+
+      // gradient bar
+      const grad = ctx.createLinearGradient(0, y, 0, PAD.top + cH);
+      grad.addColorStop(0, isHovered ? '#ff4d6a' : '#ff1744');
+      grad.addColorStop(1, 'rgba(255,23,68,0.15)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.roundRect(x, y, bW, bH, [5, 5, 0, 0]);
+      ctx.fill();
+
+      // date label every 2
+      if (i % 2 === 0) {
+        const d = new Date();
+        d.setDate(d.getDate() - (vals.length - 1 - i));
+        ctx.fillStyle = '#aaa';
+        ctx.font = '9px Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`${d.getDate()}/${d.getMonth()+1}`, x + bW/2, H - PAD.bottom + 6);
+      }
+
+      // tooltip bubble
+      if (isHovered && prog >= 1) {
+        const tipW = 58, tipH = 26;
+        let tx = x + bW/2 - tipW/2;
+        let ty = y - tipH - 7;
+        if (tx < 2) tx = 2;
+        if (tx + tipW > W - 2) tx = W - 2 - tipW;
+        ctx.fillStyle = '#1a1a2e';
+        ctx.beginPath();
+        ctx.roundRect(tx, ty, tipW, tipH, 6);
+        ctx.fill();
+        // arrow
+        ctx.beginPath();
+        ctx.moveTo(x + bW/2 - 5, ty + tipH);
+        ctx.lineTo(x + bW/2 + 5, ty + tipH);
+        ctx.lineTo(x + bW/2,     ty + tipH + 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 11px Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${v} games`, tx + tipW/2, ty + tipH/2);
+      }
+    });
+  }
+
+  function animateIn() {
+    animP += 0.035;
+    if (animP >= 1) { animP = 1; draw(1); return; }
+    draw(animP);
+    requestAnimationFrame(animateIn);
+  }
+
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const W = canvas.width, H = canvas.height;
+    const cW = W - PAD.left - PAD.right;
+    const gap = cW / vals.length;
+    const bW  = gap * 0.55;
+    let found = null;
+    vals.forEach((v, i) => {
+      const x = PAD.left + i * gap + (gap - bW) / 2;
+      if (mx >= x - 4 && mx <= x + bW + 4) found = i;
+    });
+    if (found !== tooltip) { tooltip = found; draw(1); }
+  });
+
+  canvas.addEventListener('mouseleave', () => { tooltip = null; draw(1); });
+
+  resize();
+  window.addEventListener('resize', resize);
+})();
+
+// ── DONUT CHART ───────────────────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('donut');
+  const ctx = canvas.getContext('2d');
+  const { xWins, oWins, draws } = DATA.ttt;
+  const total = xWins + oWins + draws;
+  const segs = [
+    { v: xWins, color: '#ff1744' },
+    { v: oWins, color: '#0288d1' },
+    { v: draws,  color: '#c5cef5' },
+  ];
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const R = 70, thick = 22;
+  const GAP = 0.03;
+  let p = 0;
+
+  function draw(prog) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let angle = -Math.PI / 2;
+    segs.forEach(seg => {
+      const slice = (seg.v / total) * Math.PI * 2 * prog - GAP;
+      if (slice <= 0) { angle += (seg.v / total) * Math.PI * 2 * prog; return; }
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, angle + GAP/2, angle + slice + GAP/2);
+      ctx.arc(cx, cy, R - thick, angle + slice + GAP/2, angle + GAP/2, true);
+      ctx.closePath();
+      ctx.fillStyle = seg.color;
+      ctx.fill();
+      angle += (seg.v / total) * Math.PI * 2 * prog;
+    });
+
+    // center
+    const pct = Math.round(xWins / total * 100 * prog);
+    ctx.fillStyle = '#1a1a2e';
+    ctx.font = 'bold 24px Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(pct + '%', cx, cy - 9);
+    ctx.font = '10px Segoe UI, sans-serif';
+    ctx.fillStyle = '#888';
+    ctx.fillText('X win rate', cx, cy + 12);
+  }
+
+  function animate() {
+    p += 0.035;
+    if (p >= 1) { p = 1; draw(1); return; }
+    draw(p);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
